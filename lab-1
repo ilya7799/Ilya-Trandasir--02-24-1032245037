@@ -1,0 +1,131 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+struct Student // Структура для хранения данных студента
+{
+    
+    string name; 
+    int age;
+    double height;
+};
+
+struct Node // Структура для хранения данных студента
+{
+    
+    Student data;
+    Node* next; // Указатель на следущего студента 
+};
+
+
+
+
+class StudentList // Структура для хранения данных студента
+{
+private:
+    Node* head; //Указываем на первый (узел)
+
+public:
+    StudentList() : head(nullptr) {} // "Конструктор" Проверка что список пуст
+    
+    ~StudentList() // Деструктор, отв. за освобождение памяти (ну или удаляет все узлы, пока не станет пустым) 
+    {
+        while (head)
+        {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+
+
+
+    void append(const Student& newData) // Добовляем нового студента с данными.
+    {
+        Node* newNode = new Node{newData, nullptr};
+        if (!head) 
+        // Если список пуст т.е head указывает на nullptr, то узел становиться головой данного списка.
+        
+        {
+            head = newNode;
+            return;
+        }
+        Node* current = head;
+        while (current->next) //Если список не пуст, то медот проходит по каждому узлу, пока не достигнет последнего узла.
+        {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+    
+    
+    
+    
+    void remove(int index) // Удаляем студенета
+    {
+        if (!head) 
+        {
+            cout << "Список пуст\n";
+            return;
+        }
+        if (index == 0) //Если индекс равен 0, удаляется голова списка.
+        {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            return;
+        }
+        Node* current = head;
+        for (int i = 0; i < index - 1 && current; i++) //Если индекс > 0, метод проходит к узлу.
+        {
+            current = current->next;
+        }
+        if (!current || !current->next) 
+        {
+            cout << "Индекс вне диапазона\n";
+            return;
+        }
+        Node* temp = current->next;
+        current->next = temp->next;
+        delete temp;
+    }
+
+
+
+
+    void print() const 
+    {
+        Node* current = head;
+        while (current) 
+        {
+            cout << " " << current->data.name 
+                 << " " << current->data.age 
+                 << " " << current->data.height << "м\n";
+                 current = current->next;
+        }
+    }
+};
+
+
+
+
+int main() 
+{
+    StudentList Human;  // Используем новое название класса
+    
+    // Добавляем студентов
+    Human.append({"Илья", 18, 1.75});
+    Human.append({"Маша", 20, 1.65});
+    Human.append({"Кузя", 19, 1.82});
+    
+    cout << "Список студентов: \n";
+    Human.print();
+    
+    // Удаляем элемент по индексу
+    Human.remove(2);  // Удалить студента.
+    cout << "Список после удаления элемента по индексу: \n";
+    Human.print();
+
+    return 0;
+}
