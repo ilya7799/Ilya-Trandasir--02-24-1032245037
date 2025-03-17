@@ -1,0 +1,182 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+
+
+//1. Структура для хранения объекта
+struct Element {
+    string name;  // Название
+    int size;     // Размер
+    double price; // Цена
+
+    Element(const string &n, int s, double p) : name(n), size(s), price(p) {}
+};
+
+
+
+//2. Узел односвязного списка
+struct Node {
+    Element data;
+    Node* next;
+
+    Node(const Element& d) : data(d), next(nullptr) {}
+};
+
+
+
+//3. Класс односвязного списка
+class LinkedList {
+private:
+    Node* head; //Указатель на первый узел списка.
+
+public:
+    LinkedList() : head(nullptr) {}
+    
+    ~LinkedList() {
+        clear();
+    }
+
+    void clear() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* nextNode = current->next; 
+            delete current;                  
+            current = nextNode;
+        }             
+        head = nullptr;                    // Обнуляем head, так как список теперь пуст
+    }
+
+
+
+    //4. Добавление элемента в конец списка
+    void append(const Element& data) {
+        Node* newNode = new Node(data);      // Создаем новый узел
+        if (!head) {                        
+            head = newNode;                  
+            return;                          
+        }
+        Node* current = head;                
+        while (current->next != nullptr) {   
+            current = current->next;         
+        }
+        current->next = newNode;        
+    }
+
+
+    //5. Добавление элемента после заданного индекса
+    void insertAfter(int index, const Element& data) {
+        Node* newNode = new Node(data);
+        Node* current = head;               // Указатель для обхода списка
+
+        for (int i = 0; current != nullptr && i < index; ++i) {
+            current = current->next;
+        }
+
+        if (current == nullptr) {
+            cout << "Индекс вне границ" << endl;
+            delete newNode;         // Освобождаем память
+            return;
+        }
+        newNode->next = current->next;      // Сохраняем ссылку на следующий узел.
+        current->next = newNode;            // Вставляем новый узел после текущего.
+    }
+
+    //6. Добавление элемента перед заданным индексом
+    void insertBefore(int index, const Element& data) {
+        Node* newNode = new Node(data);
+        if (index == 0) {
+            newNode->next = head; // Новый узел указывает на текущую голову head,(чтобы сохранить ссылку на                        узел, который раньше был первым).
+            head = newNode;       // Новый узел становится головой списка.
+            return;
+        }
+
+        Node* current = head;
+        for (int i = 0; current != nullptr && i < index - 1; ++i) {
+            current = current->next;
+        }
+
+        if (current == nullptr) {
+            cout << "Индекс вне границ" << endl;
+            delete newNode;
+            return;
+        }
+        newNode->next = current->next;
+        current->next = newNode;
+    }
+
+    //7. Удаление элемента по индексу
+    void removeAt(int index) {
+        if (!head) return;
+
+        Node* current = head;       // Указываем для обхода списка
+
+        if (index == 0)         // Если индекс равен 0, удаляем голову списка
+        {
+            head = current->next;    // Переносим указатель head на следующий узел
+            delete current;
+            return;
+        }
+
+        for (int i = 0; current != nullptr && i < index - 1; ++i) {
+            current = current->next;
+        }
+
+        if (current == nullptr || current->next == nullptr)      // Проверка на допустимость индекса
+        {      
+            cout << "Индекс вне границ" << endl;
+            return;
+        }
+
+        Node* nextNode = current->next->next;       // Сохраняем указатель на узел после удаляемого
+        delete current->next;                       // Удаляем узел, который нужно удалить
+        current->next = nextNode;
+    }
+
+    // Вывод списка на экран
+    void printList() const
+    {
+        Node* current = head;
+        while (current != nullptr)
+        {
+            cout << "Название: " << current->data.name 
+                 << ", Размер: " << current->data.size 
+                 << ", Цена: " << current->data.price << " руб." << endl;
+            current = current->next;
+        }
+    }
+};
+
+// Функция main
+int main() {
+    LinkedList list;
+
+    // Добавлениe элементов в список
+    list.append(Element("Футболка", 48, 619.99));
+    list.append(Element("Штаны", 50, 1039.99));
+    list.append(Element("Кроссовки", 43, 2289.99));
+    
+    cout << "Список после добавления элементов:" << endl;
+    list.printList();
+
+    // Добавление элемента после второго индекса
+    list.insertAfter(1, Element("Толстовка", 52, 1129.99));
+    cout << "\nСписок после вставки элемента после второго индекса:" << endl;
+    list.printList();
+
+    // Добавление элемента перед первым индексом
+    list.insertBefore(0, Element("Бейсболка", 53, 2114.99));
+    cout << "\nСписок после вставки элемента перед первым индексом:" << endl;
+    list.printList();
+
+    // Удаление элемента по индексу
+    list.removeAt(2);
+    cout << "\nСписок после удаления элемента по индексу 2:" << endl;
+    list.printList();
+
+    // Очистка списка перед завершением программы
+    list.clear();
+
+    return 0;
+}
