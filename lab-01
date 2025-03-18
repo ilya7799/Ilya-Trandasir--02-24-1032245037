@@ -87,7 +87,7 @@ public:
     void insertBefore(int index, const Element& data) {
         Node* newNode = new Node(data);
         if (index == 0) {
-            newNode->next = head; // Новый узел указывает на текущую голову head,(чтобы сохранить ссылку на                        узел, который раньше был первым).
+            newNode->next = head; // Новый узел указывает на текущую голову head,(чтобы сохранить ссылку на                                  узел, который раньше был первым).
             head = newNode;       // Новый узел становится головой списка.
             return;
         }
@@ -109,10 +109,10 @@ public:
     //7. Удаление элемента по индексу
     void removeAt(int index) {
         if (!head) return;
+ 
+        Node* current = head;        // Указываем для обхода списка
 
-        Node* current = head;       // Указываем для обхода списка
-
-        if (index == 0)         // Если индекс равен 0, удаляем голову списка
+        if (index == 0)              // Если индекс равен 0, удаляем голову списка
         {
             head = current->next;    // Переносим указатель head на следующий узел
             delete current;
@@ -123,7 +123,7 @@ public:
             current = current->next;
         }
 
-        if (current == nullptr || current->next == nullptr)      // Проверка на допустимость индекса
+        if (current == nullptr || current->next == nullptr)  // Проверка, дошли ли мы до конца списка. Если current                                                         равен nullptr, это значит, что мы прошли весь список.
         {      
             cout << "Индекс вне границ" << endl;
             return;
@@ -133,8 +133,7 @@ public:
         delete current->next;                       // Удаляем узел, который нужно удалить
         current->next = nextNode;
     }
-
-    // Вывод списка на экран
+// Вывод списка на экран
     void printList() const
     {
         Node* current = head;
