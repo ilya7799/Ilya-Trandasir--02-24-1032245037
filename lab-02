@@ -1,0 +1,239 @@
+#include <iostream>
+using namespace std;
+
+class vect 
+{
+public:
+    int dim; //размер 
+    double* b;//указатель 
+    int num; //номер
+    static int count;//подсчитать созданных векторов 
+
+    // Конструктор
+    vect(int d = 1) : dim(d), num(++count) 
+    {
+        b = new double[dim];
+        for (int i = 0; i < dim; i++) b[i] = 0;
+        cout << "Вектор #" << num << " создан (размер " << dim << ")" << endl;
+    }
+
+    vect& operator=(const vect& v) {
+        if (this != &v) //проверка на присвоение 
+        {
+            if (dim != v.dim) //проверка размера 
+            {
+                delete[] b;
+                dim = v.dim; //новый размер 
+                b = new double[dim];
+            }
+            for (int i = 0; i < dim; i++) b[i] = v.b[i];
+        }
+        cout << "Вектор #" << num << " присвоен вектору #" << v.num << endl;
+        return *this;
+    }
+
+    // Вывод на экран:
+    void print() const {
+        cout << "Вектор #" << num << " [";
+        for (int i = 0; i < dim; i++) {
+            cout << b[i];
+            if (i < dim - 1) cout << " ";
+        }
+        cout << "]" << endl;
+    }
+    
+    friend vect operator+(const vect& v1, const vect& v2) {
+        cout << "Сложение векторов #" << v1.num << " и #" << v2.num << endl;
+        vect res(v1.dim);
+        for (int i = 0; i < v1.dim; i++) res.b[i] = v1.b[i] + v2.b[i];
+        return res;
+    }
+
+    friend vect operator-(const vect& v1, const vect& v2) {
+        cout << "Вычитание векторов #" << v1.num << " и #" << v2.num << endl;
+        vect res(v1.dim);
+        for (int i = 0; i < v1.dim; i++) res.b[i] = v1.b[i] - v2.b[i];
+        return res;
+    }
+
+    friend vect operator-(const vect& v) {
+        cout << "Отрицательный вектор #" << v.num << endl;
+        vect res(v.dim);
+        for (int i = 0; i < v.dim; i++) res.b[i] = -v.b[i];
+        return res;
+    }
+
+    friend double operator*(const vect& v1, const vect& v2) {
+        cout << "Скалярное произведение векторов #" << v1.num << " и #" << v2.num << endl;
+        double res = 0;
+        for (int i = 0; i < v1.dim; i++) res += v1.b[i] * v2.b[i];
+        return res;
+    }
+
+    friend vect operator*(double k, const vect& v) {
+        cout << "Умножение вектора #" << v.num << " на скаляр " << k << endl;
+        vect res(v.dim);
+        for (int i = 0; i < v.dim; i++) res.b[i] = k * v.b[i];
+        return res;
+    }
+};
+
+int vect::count = 0;
+
+class matr {
+public:
+    int dim;
+    double** a;  // Двумерный массив
+    int num;
+    static int count;
+
+    // Конструктор
+    matr(int d = 1) : dim(d), num(++count) {
+        a = new double*[dim];  // Создаем массив указателей
+        for (int i = 0; i < dim; i++) {
+            a[i] = new double[dim];  // Создаем каждую строку
+            for (int j = 0; j < dim; j++) a[i][j] = 0;
+        }
+        cout << "Матрица #" << num << " создана (размер " << dim << "x" << dim << ")" << endl;
+    }
+
+    matr& operator=(const matr& m) {
+        if (this != &m) {
+            for (int i = 0; i < dim; i++) delete[] a[i];
+            delete[] a;
+            
+            dim = m.dim;
+            a = new double*[dim];
+            for (int i = 0; i < dim; i++) {
+                a[i] = new double[dim];
+                for (int j = 0; j < dim; j++) a[i][j] = m.a[i][j];
+            }
+        }
+        cout << "Матрица #" << num << " присвоена матрице #" << m.num << endl;
+        return *this;
+    }
+
+    // Вывод на экран:
+    void print() const {
+        cout << "Матрица #" << num << " \n[" << endl;
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                cout << a[i][j];
+                if (j < dim - 1) cout << " ";
+            }
+            cout << endl;
+        }
+        cout << "]" << endl;
+    }
+    friend matr operator+(const matr& m1, const matr& m2) {
+        cout << "Сложение матриц #" << m1.num << " и #" << m2.num << endl;
+        matr res(m1.dim);
+        for (int i = 0; i < m1.dim; i++)
+            for (int j = 0; j < m1.dim; j++)
+                res.a[i][j] = m1.a[i][j] + m2.a[i][j];
+        return res;
+    }
+    friend matr operator-(const matr& m1, const matr& m2) {
+        cout << "Вычитание матриц #" << m1.num << " и #" << m2.num << endl;
+        matr res(m1.dim);
+        for (int i = 0; i < m1.dim; i++)
+            for (int j = 0; j < m1.dim; j++)
+                res.a[i][j] = m1.a[i][j] - m2.a[i][j];
+        return res;
+    }
+    friend matr operator-(const matr& m) {
+        cout << "Отрицательная матрица #" << m.num << endl;
+        matr res(m.dim);
+        for (int i = 0; i < m.dim; i++)
+            for (int j = 0; j < m.dim; j++)
+                res.a[i][j] = -m.a[i][j];
+        return res;
+    }
+    friend matr operator*(const matr& m1, const matr& m2) {
+        cout << "Умножение матриц #" << m1.num << " и #" << m2.num << endl;
+        matr res(m1.dim);
+        for (int i = 0; i < m1.dim; i++) {
+            for (int j = 0; j < m1.dim; j++) {
+                double sum = 0;
+                for (int k = 0; k < m1.dim; k++) {
+                    sum += m1.a[i][k] * m2.a[k][j];
+                }
+                res.a[i][j] = sum;
+            }
+        }
+        return res;
+    }
+    friend matr operator*(double k, const matr& m) {
+        cout << "Умножение матрицы #" << m.num << " на скаляр " << k << endl;
+        matr res(m.dim);
+        for (int i = 0; i < m.dim; i++)
+            for (int j = 0; j < m.dim; j++)
+                res.a[i][j] = k * m.a[i][j];
+        return res;
+    }
+    friend vect operator*(const matr& m, const vect& v) {
+        cout << "Умножение матрицы #" << m.num << " на вектор #" << v.num << endl;
+        vect res(m.dim);
+        for (int i = 0; i < m.dim; i++) {
+            double sum = 0;
+            for (int j = 0; j < m.dim; j++) {
+                sum += m.a[i][j] * v.b[j];
+            }
+            res.b[i] = sum;
+        }
+        return res;
+    }
+};
+
+int matr::count = 0;
+
+int main() {
+    cout << "1. Создание векторов:" << endl;
+    vect v1(3), v2(3);
+    v1.b[0] = -1; v1.b[1] = 2; v1.b[2] = -5;
+    v2.b[0] = 4; v2.b[1] = 5; v2.b[2] = 6;
+    v1.print();
+    v2.print();
+
+    cout << "\n2. Операции с векторами:" << endl;
+    vect v3 = v1 + v2;
+    v3.print();
+    vect v4 = v1 - v2;
+    v4.print();
+    vect v5 = -v1;
+    v5.print();
+    double dot = v1 * v2;
+    cout << "Скалярное произведение: " << dot << endl;
+    vect v6 = 2.5 * v1;
+    v6.print();
+
+    cout << "\n3. Создание матриц:" << endl;
+    matr m1(2), m2(2);
+    m1.a[0][0] = 1; m1.a[0][1] = 2; 
+    m1.a[1][0] = 3; m1.a[1][1] = 4;
+    
+    m2.a[0][0] = 5; m2.a[0][1] = 6;
+    m2.a[1][0] = 7; m2.a[1][1] = 8;
+    
+    m1.print();
+    m2.print();
+
+    cout << "\n4. Операции с матрицами:" << endl;
+    matr m3 = m1 + m2;
+    m3.print();
+    matr m4 = m1 - m2;
+    m4.print();
+    matr m5 = -m1;
+    m5.print();
+    matr m6 = m1 * m2;
+    m6.print();
+    matr m7 = 3.0 * m1;
+    m7.print();
+
+    cout << "\n5. Умножение матрицы на вектор:" << endl;
+    vect v7(2);
+    v7.b[0] = 1; v7.b[1] = 2;
+    vect v8 = m1 * v7;
+    v8.print();
+    return 0;
+}
