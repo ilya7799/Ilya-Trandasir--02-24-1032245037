@@ -1,0 +1,244 @@
+#include <iostream>
+#include <cmath> // Для sin, cos
+using namespace std;
+
+// Абстрактный класс Точка
+class Tochka {
+public:
+    virtual double getX() const = 0;
+    virtual double getY() const = 0;
+    virtual void peremestit(double dx, double dy) = 0;
+    virtual void povernut(double ugol) = 0;
+    virtual void narisovat() const = 0;
+    virtual void steret() const = 0;
+    virtual ~Tochka() {}
+};
+
+// Конкретная реализация точки
+class ProstayaTochka : public Tochka {
+private:
+    double x, y;
+public:
+    ProstayaTochka(double x = 0, double y = 0) : x(x), y(y) {}
+
+    double getX() const override { return x; }
+    double getY() const override { return y; }
+
+    void peremestit(double dx, double dy) override {
+        x += dx;
+        y += dy;
+    }
+
+    void povernut(double ugol) override {
+        double rad = ugol * M_PI / 180.0;
+        double newX = x * cos(rad) - y * sin(rad);
+        double newY = x * sin(rad) + y * cos(rad);
+        x = newX;
+        y = newY;
+    }
+
+    void narisovat() const override {
+        cout << "Точка (" << x << ", " << y << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерта точка (" << x << ", " << y << ")\n";
+    }
+};
+
+// Абстрактный класс Фигура
+class Figura : public Tochka {
+public:
+    virtual void narisovat() const = 0;
+    virtual void steret() const = 0;
+    virtual void peremestit(double dx, double dy) = 0;
+    virtual void povernut(double ugol) = 0;
+    virtual ~Figura() {}
+};
+
+// Класс Линия
+class Liniya : public Figura {
+private:
+    ProstayaTochka nachalo, konec;
+public:
+    Liniya(double x1, double y1, double x2, double y2) : nachalo(x1, y1), konec(x2, y2) {}
+
+    double getX() const override { return (nachalo.getX() + konec.getX()) / 2; }
+    double getY() const override { return (nachalo.getY() + konec.getY()) / 2; }
+
+    void peremestit(double dx, double dy) override {
+        nachalo.peremestit(dx, dy);
+        konec.peremestit(dx, dy);
+    }
+
+    void povernut(double ugol) override {
+        double cx = getX();
+        double cy = getY();
+
+        nachalo.peremestit(-cx, -cy);
+        konec.peremestit(-cx, -cy);
+
+        nachalo.povernut(ugol);
+        konec.povernut(ugol);
+
+        nachalo.peremestit(cx, cy);
+        konec.peremestit(cx, cy);
+    }
+
+    void narisovat() const override {
+        cout << "Линия от (" << nachalo.getX() << ", " << nachalo.getY() 
+             << ") до (" << konec.getX() << ", " << konec.getY() << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерта линия\n";
+    }
+};
+
+// Класс Kvadrat
+class Kvadrat : public Figura {
+protected:
+    ProstayaTochka levVerh;
+    double storona;
+public:
+    Kvadrat(double x, double y, double s) : levVerh(x, y), storona(s) {}
+
+    double getX() const override { return levVerh.getX() + storona / 2; }
+    double getY() const override { return levVerh.getY() + storona / 2; }
+
+    void peremestit(double dx, double dy) override {
+        levVerh.peremestit(dx, dy);
+    }
+
+    void povernut(double ugol) override {
+        double cx = getX();
+        double cy = getY();
+        levVerh.peremestit(-cx, -cy);
+        levVerh.povernut(ugol);
+        levVerh.peremestit(cx, cy);
+    }
+
+    void narisovat() const override {
+        cout << "Квадрат со стороной " << storona 
+             << " и центром в (" << getX() << ", " << getY() << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерт квадрат\n";
+    }
+};
+
+// Класс Pryamougolnik
+class Pryamougolnik : public Figura {
+    private:
+    ProstayaTochka levVerh;
+    double shirina, vysota;
+public:
+    Pryamougolnik(double x, double y, double w, double h) : levVerh(x, y), shirina(w), vysota(h) {}
+
+    double getX() const override { return levVerh.getX() + shirina / 2; }
+    double getY() const override { return levVerh.getY() + vysota / 2; }
+
+    void peremestit(double dx, double dy) override {
+        levVerh.peremestit(dx, dy);
+    }
+
+    void povernut(double ugol) override {
+        double cx = getX();
+        double cy = getY();
+        levVerh.peremestit(-cx, -cy);
+        levVerh.povernut(ugol);
+        levVerh.peremestit(cx, cy);
+    }
+
+    void narisovat() const override {
+        cout << "Прямоугольник " << shirina << "x" << vysota 
+             << " с центром в (" << getX() << ", " << getY() << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерт прямоугольник\n";
+    }
+};
+
+// Класс Romb
+class Romb : public Figura {
+private:
+    ProstayaTochka centr;
+    double diag1, diag2;
+public:
+    Romb(double x, double y, double d1, double d2) : centr(x, y), diag1(d1), diag2(d2) {}
+
+    double getX() const override { return centr.getX(); }
+    double getY() const override { return centr.getY(); }
+
+    void peremestit(double dx, double dy) override {
+        centr.peremestit(dx, dy);
+    }
+
+    void povernut(double ugol) override {
+        centr.povernut(ugol);
+    }
+
+    void narisovat() const override {
+        cout << "Ромб с диагоналями " << diag1 << " и " << diag2 
+             << " с центром в (" << centr.getX() << ", " << centr.getY() << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерт ромб\n";
+    }
+};
+
+// Класс Parallelogram наследуется от Kvadrat
+class Parallelogram : public Kvadrat {
+private:
+    double ugolSkosa;
+public:
+    Parallelogram(double x, double y, double s, double u) : Kvadrat(x, y, s), ugolSkosa(u) {}
+
+    void narisovat() const override {
+        cout << "Параллелограмм со стороной " << storona 
+             << ", углом " << ugolSkosa 
+             << " и центром в (" << getX() << ", " << getY() << ")\n";
+    }
+
+    void steret() const override {
+        cout << "Стерт параллелограмм\n";
+    }
+};
+
+// Функция для демонстрации
+void demostrirovat(Figura* fig) {
+    fig->narisovat();
+    fig->peremestit(1, 1);
+    fig->povernut(45);
+    fig->narisovat();
+    fig->steret();
+    cout << "\n";
+}
+
+int main() {
+    Liniya l(0, 0, 2, 2);
+    Kvadrat kv(0, 0, 3);
+    Pryamougolnik pr(1, 1, 4, 2);
+    Romb rb(0, 0, 4, 2);
+    Parallelogram pl(0, 0, 3, 60);
+
+    cout << " Демонстрация линии \n";
+    demostrirovat(&l);
+
+    cout << " Демонстрация квадрата \n";
+    demostrirovat(&kv);
+
+    cout << " Демонстрация прямоугольника \n";
+    demostrirovat(&pr);
+
+    cout << " Демонстрация ромба \n";
+    demostrirovat(&rb);
+
+    cout << " Демонстрация параллелограмма \n";
+    demostrirovat(&pl);
+
+    return 0;
+}
