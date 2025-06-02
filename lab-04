@@ -1,0 +1,176 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+class Student {
+public:
+    string name;
+    string surname;
+    int age;
+    string group;
+};
+
+vector<Student> students; 
+const string filename = "students.txt"; 
+
+// Преобразование объекта в строку 
+string studentToString(const Student& s) {
+    return s.name + " " + s.surname + " " + to_string(s.age) + " " + s.group;
+}
+
+Student stringToStudent(const string& line) {
+    Student s;
+    istringstream iss(line);
+    iss >> s.name >> s.surname >> s.age >> s.group;
+    return s;
+}
+
+// Добавление 
+void addStudent() {
+    Student s;
+    cout << "Введите имя: ";
+    cin >> s.name;
+    cout << "Введите фамилию: ";
+    cin >> s.surname;
+    cout << "Введите возраст: ";
+    cin >> s.age;
+    cout << "Введите группу: ";
+    cin >> s.group;
+    students.push_back(s);
+    cout << "Студент добавлен!\n";
+}
+
+// Сохранение 
+void saveToFile() {
+    ofstream file(filename);
+    if (file.is_open()) {
+        for (const auto& s : students) {
+            file << studentToString(s) << endl;
+        }
+        cout << "Данные сохранены в файл.\n";
+    } else {
+        cout << "Ошибка открытия файла для записи!\n";
+    }
+}
+
+// Загрузка данных из файла
+void loadFromFile() {
+    ifstream file(filename);
+    if (file.is_open()) {
+        students.clear();
+        string line;
+        while (getline(file, line)) {
+            students.push_back(stringToStudent(line));
+        }
+        cout << "Данные загружены из файла.\n";
+    } else {
+        cout << "Файл не найден, будет создан новый.\n";
+    }
+}
+
+// Обновление данных студента
+void updateStudent() {
+    if (students.empty()) {
+        cout << "Нет студентов для изменения.\n";
+        return;
+    }
+    
+    cout << "Список студентов:\n";
+    for (size_t i = 0; i < students.size(); i++) {
+        cout << i+1 << ". " << studentToString(students[i]) << endl;
+    }
+    
+    cout << "Введите номер студента для изменения: ";
+    size_t num;
+    cin >> num;
+    
+    if (num > 0 && num <= students.size()) {
+        Student s;
+        cout << "Введите новое имя: ";
+        cin >> s.name;
+        cout << "Введите новую фамилию: ";
+        cin >> s.surname;
+        cout << "Введите новый возраст: ";
+        cin >> s.age;
+        cout << "Введите новую группу: ";
+        cin >> s.group;
+        
+        students[num-1] = s;
+        saveToFile();
+        cout << "Данные обновлены.\n";
+    } else {
+        cout << "Неверный номер!\n";
+    }
+}
+
+// Удаление студента
+void deleteStudent() {
+    if (students.empty()) {
+        cout << "Нет студентов для удаления.\n";
+        return;
+    }
+    
+    cout << "Список студентов:\n";
+    for (size_t i = 0; i < students.size(); i++) {
+        cout << i+1 << ". " << studentToString(students[i]) << endl;
+    }
+    
+    cout << "Введите номер студента для удаления: ";
+    size_t num;
+    cin >> num;
+    
+    if (num > 0 && num <= students.size()) {
+        students.erase(students.begin() + num - 1);
+        saveToFile();
+        cout << "Студент удален.\n";
+    } else {
+        cout << "Неверный номер!\n";
+    }
+}
+
+void showMenu() {
+    cout << "\nМеню базы данных студентов:\n";
+    cout << "1. Добавить студента\n";
+    cout << "2. Показать всех студентов\n";
+    cout << "3. Изменить данные студента\n";
+    cout << "4. Удалить студента\n";
+    cout << "5. Сохранить и выйти\n";
+    cout << "Выберите действие: ";
+}
+
+int main() {
+    loadFromFile(); 
+    
+    while (true) {
+        showMenu();
+        int choice;
+        cin >> choice;
+        
+        switch (choice) {
+            case 1: addStudent(); break;
+            case 2: 
+                if (students.empty()) {
+                    cout << "Нет студентов в базе.\n";
+                } else {
+                    cout << "\nСписок студентов:\n";
+                    for (const auto& s : students) {
+                        cout << studentToString(s) << endl;
+                    }
+                }
+                break;
+            case 3: updateStudent(); break;
+            case 4: deleteStudent(); break;
+            case 5: 
+                saveToFile();
+                return 0;
+            default:
+                cout << "Неверный выбор. Попробуйте снова.\n";
+        }
+    }
+    return 0;
+}
+ 
